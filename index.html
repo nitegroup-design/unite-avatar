@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNITE - Tạo Ảnh Đại Diện</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold-primary: #d4af37;
+            --gold-light: #f3e5ab;
+            --gold-dark: #bfa030;
+            --bg-color: #0d0d0d;
+            --card-bg: rgba(25, 25, 25, 0.9);
+            --text-main: #f0f0f0;
+            --text-muted: #aaaaaa;
+        }
+
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            text-align: center; 
+            background: var(--bg-color); 
+            background-image: radial-gradient(circle at top right, #2a2a2a, #000);
+            color: var(--text-main);
+            margin: 0; 
+            padding: 20px; 
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container { 
+            width: 100%;
+            max-width: 500px; 
+            margin: 0 auto; 
+            background: var(--card-bg); 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5); 
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 { 
+            color: var(--gold-primary); 
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        
+        p.subtitle { 
+            color: var(--text-muted); 
+            font-size: 14px; 
+            font-weight: 300;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        
+        .canvas-container { 
+            position: relative; 
+            margin-top: 20px; 
+            width: 100%; 
+            aspect-ratio: 1/1; 
+            overflow: hidden; 
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            background: #000;
+        }
+        
+        canvas { 
+            width: 100%; 
+            height: 100%; 
+            cursor: grab; 
+            display: block; 
+            touch-action: none;
+        }
+        
+        canvas:active { cursor: grabbing; }
+        
+        .controls { 
+            margin-top: 25px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+        }
+        
+        .control-group { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 15px; 
+            background: rgba(0,0,0,0.3);
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+        
+        .control-group label {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        input[type="file"] { display: none; }
+        
+        .btn { 
+            padding: 14px 20px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 15px; 
+            font-weight: 600; 
+            letter-spacing: 1px;
+            text-transform: uppercase; 
+            width: 100%; 
+            box-sizing: border-box; 
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-upload { 
+            background-color: transparent; 
+            color: var(--gold-primary);
+            border: 1px solid var(--gold-primary);
+        }
+        
+        .btn-upload:hover { 
+            background-color: rgba(212, 175, 55, 0.1); 
+        }
+        
+        .btn-download {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary), var(--gold-light), var(--gold-primary));
+            background-size: 300% 300%;
+            color: #111;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            animation: gradientMove 5s ease infinite;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .btn-download:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
+        }
+        
+        /* Custom Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: var(--gold-primary);
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 5px rgba(212,175,55,0.8);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        .helper-text { 
+            font-size: 12px; 
+            color: var(--gold-primary); 
+            margin-top: 10px; 
+            font-weight: 300;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>UNITE AVATAR</h1>
+    <p class="subtitle">Tự hào lan tỏa thương hiệu <b>UNITE GROUP</b><br>Nâng Tầm Cuộc Sống</p>
+    
+    <label for="imageUpload" class="btn btn-upload">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        Chọn Ảnh Của Bạn
+    </label>
+    <input type="file" id="imageUpload" accept="image/*">
+    
+    <div class="canvas-container">
+        <canvas id="avatarCanvas" width="1024" height="1024"></canvas>
+    </div>
+    <div class="helper-text">💡 Kéo ảnh để di chuyển và căn chỉnh khuôn mặt</div>
+    
+    <div class="controls">
+        <div class="control-group">
+            <label for="scale">Thu Phóng</label>
+            <input type="range" id="scale" min="0.1" max="5" step="0.01" value="1">
+        </div>
+        
+        <button id="downloadBtn" class="btn btn-download">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            TẢI ẢNH VỀ MÁY
+        </button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('avatarCanvas');
+    const ctx = canvas.getContext('2d');
+    const scaleInput = document.getElementById('scale');
+    const uploadInput = document.getElementById('imageUpload');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    let bgImg = new Image();
+    let fgImg = new Image();
+    let userImg = new Image();
+
+    let imagesLoaded = 0;
+    const checkImagesLoaded = () => {
+        imagesLoaded++;
+        if(imagesLoaded >= 2) draw();
+    };
+
+    bgImg.onload = checkImagesLoaded;
+    fgImg.onload = checkImagesLoaded;
+    
+    bgImg.src = 'background.jpg';
+    fgImg.src = 'foreground.png';
+
+    let userImgLoaded = false;
+    let imgX = 0, imgY = 0;
+    let imgScale = 1;
+    let isDragging = false;
+    let startX, startY;
+
+    uploadInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            userImg = new Image();
+            userImg.onload = () => {
+                userImgLoaded = true;
+                const scale = Math.max(800 / userImg.width, 800 / userImg.height);
+                scaleInput.value = scale;
+                imgScale = scale;
+                imgX = canvas.width / 2 - (userImg.width * imgScale) / 2;
+                imgY = canvas.height / 2 - (userImg.height * imgScale) / 2;
+                draw();
+            };
+            userImg.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    scaleInput.addEventListener('input', (e) => {
+        if (!userImgLoaded) return;
+        const oldScale = imgScale;
+        imgScale = parseFloat(e.target.value);
+        
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        imgX = centerX - (centerX - imgX) * (imgScale / oldScale);
+        imgY = centerY - (centerY - imgY) * (imgScale / oldScale);
+
+        draw();
+    });
+
+    canvas.addEventListener('mousedown', startDrag);
+    window.addEventListener('mousemove', drag);
+    window.addEventListener('mouseup', endDrag);
+    window.addEventListener('mouseleave', endDrag);
+
+    canvas.addEventListener('touchstart', (e) => {
+        if (!userImgLoaded) return;
+        e.preventDefault(); 
+        startDrag(e.touches[0]);
+    }, {passive: false});
+    
+    window.addEventListener('touchmove', (e) => {
+        if(isDragging && userImgLoaded) {
+            e.preventDefault();
+            drag(e.touches[0]);
+        }
+    }, {passive: false});
+    
+    window.addEventListener('touchend', endDrag);
+
+    function startDrag(e) {
+        if (!userImgLoaded) return;
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        isDragging = true;
+        startX = (e.clientX - rect.left) * scaleX - imgX;
+        startY = (e.clientY - rect.top) * scaleY - imgY;
+    }
+
+    function drag(e) {
+        if (!isDragging || !userImgLoaded) return;
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        imgX = (e.clientX - rect.left) * scaleX - startX;
+        imgY = (e.clientY - rect.top) * scaleY - startY;
+        draw();
+    }
+
+    function endDrag() {
+        isDragging = false;
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        if (imagesLoaded >= 2) {
+            ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+        }
+
+        if (userImgLoaded) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, canvas.height / 2, 480, 0, Math.PI * 2);
+            ctx.clip();
+            
+            ctx.drawImage(userImg, imgX, imgY, userImg.width * imgScale, userImg.height * imgScale);
+            
+            ctx.restore();
+        }
+
+        if (imagesLoaded >= 2) {
+            ctx.drawImage(fgImg, 0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    downloadBtn.addEventListener('click', () => {
+        if(!userImgLoaded) {
+            alert("Bạn chưa tải ảnh lên. Hãy chọn ảnh của bạn trước nhé!");
+            return;
+        }
+
+        try {
+            const dataUrl = canvas.toDataURL('image/png', 1.0);
+            const link = document.createElement('a');
+            link.download = 'UNITE-Avatar.png';
+            link.href = dataUrl;
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (e) {
+            console.error(e);
+            alert("❌ LỖI TRÌNH DUYỆT BẢO MẬT: Do bạn đang mở file index.html trực tiếp. Vui lòng mở file index_portable.html để tải được ảnh về nhé!");
+        }
+    });
+</script>
+
+</body>
+</html>
