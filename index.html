@@ -187,7 +187,56 @@
             margin-top: 10px; 
             font-weight: 300;
         }
-    </style>
+    
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            backdrop-filter: blur(5px);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            max-width: 400px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid var(--gold-primary);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+        .modal-content img {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(212,175,55,0.3);
+            margin-bottom: 15px;
+            display: block;
+        }
+        .modal-instructions {
+            margin: 0 0 20px 0;
+            font-size: 15px;
+            color: #f0f0f0;
+            line-height: 1.6;
+        }
+        .modal-instructions strong { color: var(--gold-primary); font-size: 16px; }
+        .btn-close {
+            background: transparent;
+            border: 1px solid #666;
+            color: #ccc;
+            margin-top: 15px;
+        }
+        .btn-close:hover { background: rgba(255,255,255,0.1); }
+</style>
 </head>
 <body>
 
@@ -374,5 +423,19 @@
     });
 </script>
 
+
+<!-- Result Modal -->
+<div id="resultModal" class="modal">
+    <div class="modal-content">
+        <h2 style="color: var(--gold-primary); margin-top:0; font-size: 22px; text-transform: uppercase;">Hoàn Tất!</h2>
+        <p class="modal-instructions">
+            📱 <b>Nếu dùng Điện thoại (iPhone, Zalo, FB):</b><br>
+            Hãy <strong>NHẤN GIỮ</strong> vào ảnh bên dưới khoảng 2 giây và chọn <strong>"Lưu hình ảnh"</strong> (Save Image).
+        </p>
+        <img id="finalImage" src="" alt="UNITE Avatar">
+        <button id="pcDownloadBtn" class="btn btn-download">💻 TẢI XUỐNG (DÀNH CHO MÁY TÍNH)</button>
+        <button id="closeModalBtn" class="btn btn-close">Quay lại chỉnh sửa</button>
+    </div>
+</div>
 </body>
 </html>
