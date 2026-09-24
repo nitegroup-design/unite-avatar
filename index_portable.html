@@ -253,7 +253,7 @@
     <div class="canvas-container">
         <canvas id="avatarCanvas" width="1024" height="1024"></canvas>
     </div>
-    <div class="helper-text">💡 Kéo ảnh để di chuyển và căn chỉnh khuôn mặt</div>
+    <div class="helper-text">💡 Kéo để di chuyển, dùng 2 ngón tay để phóng to/thu nhỏ ảnh</div>
     
     <div class="controls">
         <div class="control-group">
@@ -337,20 +337,84 @@
     window.addEventListener('mouseup', endDrag);
     window.addEventListener('mouseleave', endDrag);
 
+    let initialPinchDistance = null;
+    let initialPinchScale = null;
+
+    function getDistance(touches) {
+        return Math.hypot(
+            touches[0].clientX - touches[1].clientX,
+            touches[0].clientY - touches[1].clientY
+        );
+    }
+
+    function getCenter(touches) {
+        return {
+            x: (touches[0].clientX + touches[1].clientX) / 2,
+            y: (touches[0].clientY + touches[1].clientY) / 2
+        };
+    }
+
     canvas.addEventListener('touchstart', (e) => {
         if (!userImgLoaded) return;
-        e.preventDefault(); 
-        startDrag(e.touches[0]);
-    }, {passive: false});
-    
-    window.addEventListener('touchmove', (e) => {
-        if(isDragging && userImgLoaded) {
-            e.preventDefault();
-            drag(e.touches[0]);
+        e.preventDefault();
+        
+        if (e.touches.length === 1) {
+            // Pan
+            initialPinchDistance = null;
+            startDrag(e.touches[0]);
+        } else if (e.touches.length === 2) {
+            // Pinch to zoom
+            isDragging = false;
+            initialPinchDistance = getDistance(e.touches);
+            initialPinchScale = imgScale;
         }
     }, {passive: false});
     
-    window.addEventListener('touchend', endDrag);
+    window.addEventListener('touchmove', (e) => {
+        if (!userImgLoaded) return;
+        
+        if (e.touches.length === 1 && isDragging) {
+            e.preventDefault();
+            drag(e.touches[0]);
+        } else if (e.touches.length === 2 && initialPinchDistance) {
+            e.preventDefault();
+            const newDistance = getDistance(e.touches);
+            const scaleRatio = newDistance / initialPinchDistance;
+            
+            let newScale = initialPinchScale * scaleRatio;
+            newScale = Math.min(Math.max(0.1, newScale), 5); // Clamp scale
+            
+            const oldScale = imgScale;
+            imgScale = newScale;
+            
+            // Sync with slider
+            scaleInput.value = imgScale;
+            
+            // Zoom towards pinch center
+            const center = getCenter(e.touches);
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const pinchCenterX = (center.x - rect.left) * scaleX;
+            const pinchCenterY = (center.y - rect.top) * scaleY;
+
+            imgX = pinchCenterX - (pinchCenterX - imgX) * (imgScale / oldScale);
+            imgY = pinchCenterY - (pinchCenterY - imgY) * (imgScale / oldScale);
+            
+            draw();
+        }
+    }, {passive: false});
+    
+    window.addEventListener('touchend', (e) => {
+        if (e.touches.length === 0) {
+            endDrag();
+            initialPinchDistance = null;
+        } else if (e.touches.length === 1) {
+            initialPinchDistance = null;
+            startDrag(e.touches[0]);
+        }
+    });
 
     function startDrag(e) {
         if (!userImgLoaded) return;
